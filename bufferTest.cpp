@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
   int p_num = atoi(argv[1]);
   int c_num = atoi(argv[2]);
 
+  int element = 1;
+
   printf("# of producer: %d, # of consumer: %d\n", p_num, c_num);
 
   runtest = 1;
