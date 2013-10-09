@@ -6,4 +6,4 @@ buffer_test:
 	$(CXX) -o buffer_test *.cpp -lpthread
 
 clean:
-	rm *~
+	rm *~ buffer_test

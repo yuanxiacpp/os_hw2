@@ -9,7 +9,7 @@
 
 #include "buffer.h"
 
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 20
 
 Buffer buffer(BUFFER_SIZE);
 
@@ -18,31 +18,31 @@ sem_t full;
 
 int runtest = 0;
 
+int element = 1;
+
 //Counter
 
 
-extern "C" void * 
-consumerThread(void *arg) {
+void* consumerThread(void*) {
   while (runtest) {
     sem_wait(&full);
-
-    printf("consume %d\n", buffer.get());
+    
+    buffer.get();
 
     sem_post(&empty);
+    usleep(1000*100);
   }
   return NULL;
 }
 
-extern "C" void *
-producerThread(void *arg) {
+void* producerThread(void*) {
   while (runtest) {
-    sem_wait(&full);
-    
-    srand(time(NULL));
-    int product = rand() % 1000;
-    buffer.put(product);
+    sem_wait(&empty);
 
-    sem_post(&empty);
+    buffer.put(element++);
+
+    sem_post(&full);
+    usleep(1000*100);
   }
   return NULL;
 }
@@ -59,19 +59,19 @@ int main(int argc, char **argv) {
 
   printf("# of producer: %d, # of consumer: %d\n", p_num, c_num);
 
-  
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
   runtest = 1;
 
   sem_init(&empty, 0, BUFFER_SIZE);
   sem_init(&full, 0, 0);
 
-  for (int i = 0; i < p_num; i++)
-    pthread_create(NULL, &attr, producerThread, NULL);
-  for (int i = 0; i < c_num; i++)
-    pthread_create(NULL, &attr, consumerThread, NULL);
+  for (int i = 0; i < p_num; i++) {
+    pthread_t t;
+    pthread_create(&t, NULL, &producerThread, NULL);
+  }
+  for (int i = 0; i < c_num; i++) {
+    pthread_t t;
+    pthread_create(&t, NULL, &consumerThread, NULL);
+  }
 
   //wait for 5s
   usleep(5*1000*1000);
