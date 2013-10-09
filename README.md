@@ -1,3 +1,5 @@
+bufferTest.cpp is a test program that verifies bounded buffer problem
+
 Usage:
 How to compile: make
 How to run the program: ./test_buffer NumOfProducer NumOfConsumer
