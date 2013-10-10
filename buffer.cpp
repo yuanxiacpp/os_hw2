@@ -4,8 +4,8 @@
 #include "buffer.h"
 
 Buffer::Buffer(int size) {
-  pthread_mutex_init(&mutex, NULL);
-
+  //pthread_mutex_init(&mutex, NULL);
+  sem_init(&mutex, 0, 1);
   counter = 0;
   buffer_size = size;
   in = 0;
@@ -14,7 +14,8 @@ Buffer::Buffer(int size) {
 }
 
 int Buffer::put(int val) {
-  pthread_mutex_lock(&mutex);
+  //pthread_mutex_lock(&mutex);
+  sem_wait(&mutex);
   int status = -1;
 
   //srand(time(NULL));
@@ -32,12 +33,14 @@ int Buffer::put(int val) {
     //just in case
     printf("Buffer full...\n");
   }
-  pthread_mutex_unlock(&mutex);
+  //pthread_mutex_unlock(&mutex);
+  sem_post(&mutex);
   return status;
 }
 
 int Buffer::get() {
-  pthread_mutex_lock(&mutex);
+  //pthread_mutex_lock(&mutex);
+  sem_wait(&mutex);
   int result = -1;
   if (counter != 0) {
     result = content[out];
@@ -49,14 +52,17 @@ int Buffer::get() {
   else {
     printf("Buffer empty...\n");
   }
-  pthread_mutex_unlock(&mutex);
+  //pthread_mutex_unlock(&mutex);
+  sem_post(&mutex);
   return result;
 }
 
 int Buffer::getCounter() {
-  pthread_mutex_lock(&mutex);
+  //pthread_mutex_lock(&mutex);
+  sem_wait(&mutex);
   int result = counter;
-  pthread_mutex_unlock(&mutex);
+  sem_post(&mutex);
+  //pthread_mutex_unlock(&mutex);
   return result;
 }
 

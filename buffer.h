@@ -1,8 +1,10 @@
 #include <pthread.h>
+#include <semaphore.h>
 
 class Buffer {
  private:
-  pthread_mutex_t mutex;
+  sem_t mutex;
+  //pthread_mutex_t mutex;
   int in;
   int out;
   int counter;
