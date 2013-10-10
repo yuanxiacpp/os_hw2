@@ -13,11 +13,11 @@ class Buffer {
  public:
   Buffer(int size);
   //produce a randomly generated value and store and return it
-  int put(int val);
+  int put(int val, int p);
   //return the val that was consumed
 
 
-  int get();
+  int get(int c);
 
   int getSize() {
     return buffer_size;

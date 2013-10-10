@@ -26,12 +26,15 @@ int runtest;
 //the elements will be put into buffer, just increament each time for simplification
 int element = 1;
 
+sem_t elem_lock;
+
 //act as a consumer
-void* consumerThread(void*) {
+void* consumerThread(void *arg) {
+  int c = *((int *)arg);
   while (runtest) {
     sem_wait(&full);
     
-    buffer.get();
+    buffer.get(c);
 
     sem_post(&empty);
     usleep(1000*100);
@@ -40,11 +43,17 @@ void* consumerThread(void*) {
 }
 
 //act as a producer
-void* producerThread(void*) {
+void* producerThread(void* arg) {
+  int p = *((int *)arg);
   while (runtest) {
     sem_wait(&empty);
 
-    buffer.put(element++);
+
+    //make sure that each thread generate unique elem
+    sem_wait(&elem_lock);
+    buffer.put(element++, p);
+    sem_post(&elem_lock);
+    
 
     sem_post(&full);
     usleep(1000*100);
@@ -69,17 +78,22 @@ int main(int argc, char **argv) {
 
   sem_init(&empty, 0, BUFFER_SIZE);
   sem_init(&full, 0, 0);
+  sem_init(&elem_lock, 0, 1);
 
   //create producer threads
   for (int i = 0; i < p_num; i++) {
     pthread_t t;
-    pthread_create(&t, NULL, &producerThread, NULL);
+    int *arg = (int *)malloc(sizeof(int));
+    *arg = i + 1;
+    pthread_create(&t, NULL, &producerThread, (void*)arg);
   }
 
   //create consumer threads
   for (int i = 0; i < c_num; i++) {
     pthread_t t;
-    pthread_create(&t, NULL, &consumerThread, NULL);
+    int *arg = (int *)malloc(sizeof(int));
+    *arg = i + 1;
+    pthread_create(&t, NULL, &consumerThread, (void*)arg);
   }
 
   //wait for 5s

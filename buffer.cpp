@@ -13,7 +13,7 @@ Buffer::Buffer(int size) {
   content = (int*)malloc(size*sizeof(int));
 }
 
-int Buffer::put(int val) {
+int Buffer::put(int val, int p) {
   //pthread_mutex_lock(&mutex);
   sem_wait(&mutex);
   int status = -1;
@@ -22,7 +22,7 @@ int Buffer::put(int val) {
   //int val = rand() % 1000;
 
   if (counter != buffer_size) {
-    printf("Produce %d\n", val);
+    printf("P%d: produce %d\n", p, val);
     content[in] = val;
     in = (in + 1) % buffer_size;
     counter++;
@@ -38,19 +38,19 @@ int Buffer::put(int val) {
   return status;
 }
 
-int Buffer::get() {
+int Buffer::get(int c) {
   //pthread_mutex_lock(&mutex);
   sem_wait(&mutex);
   int result = -1;
   if (counter != 0) {
     result = content[out];
-    printf("\t\tConsume %d\n", result);
+    printf("\t\t\tC%d: consume %d\n", c, result);
     out = (out+1) % buffer_size;
     counter--;
   }
   //get nothing
   else {
-    printf("\t\tBuffer empty...\n");
+    printf("\t\t\tBuffer empty...\n");
   }
   //pthread_mutex_unlock(&mutex);
   sem_post(&mutex);
