@@ -50,7 +50,7 @@ int Buffer::get() {
   }
   //get nothing
   else {
-    printf("Buffer empty...\n");
+    printf("\t\tBuffer empty...\n");
   }
   //pthread_mutex_unlock(&mutex);
   sem_post(&mutex);
